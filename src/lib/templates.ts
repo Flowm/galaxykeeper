@@ -75,6 +75,10 @@ ${card("kills.html", "fa-skull", "Kills", "Enemies killed and losses.")}
         interactive Planets / Platforms maps and every table run straight from
         <code>file://</code> with no web server and no internet.
       </p>
+      <p class="offline-note">
+        Created with Galaxy Keeper — make your own offline backup at
+        <a href="https://galaxykeeper.frcy.org" target="_blank" rel="noopener">galaxykeeper.frcy.org</a>.
+      </p>
     </div>
   </div>
 </body>

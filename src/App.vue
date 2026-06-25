@@ -169,6 +169,8 @@ function reset(): void {
     <footer class="mt-12 text-center text-xs text-zinc-600">
       Not affiliated with Wube Software. Fetches only public Galaxy of Fame data.
       <span class="mx-1 opacity-50">·</span>
+      <a href="https://github.com/Flowm/GalaxyKeeper" target="_blank" rel="noopener" class="transition hover:text-zinc-400">GitHub</a>
+      <span class="mx-1 opacity-50">·</span>
       <span class="text-zinc-500">build {{ buildSha }}</span>
     </footer>
   </div>
