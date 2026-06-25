@@ -71,11 +71,9 @@ ${card("kills.html", "fa-skull", "Kills", "Enemies killed and losses.")}
       </div>
 
       <p class="offline-note">
-        Fully self-contained offline snapshot. The interactive Planets / Platforms
-        maps must be opened through the included local web server (see
-        <code>README.md</code>) because browsers block ES modules on
-        <code>file://</code>. The Info / Items / Energy / Kills tables also work by
-        opening the <code>.html</code> files directly.
+        Fully self-contained offline snapshot — just open this page from disk. The
+        interactive Planets / Platforms maps and every table run straight from
+        <code>file://</code> with no web server and no internet.
       </p>
     </div>
   </div>
@@ -98,24 +96,10 @@ locally so it survives a future re-upload. **No internet connection is required.
 
 ## How to open it
 
-### Recommended — start the local server (needed for the interactive maps)
-
-The **Planets** and **Platforms** tabs render the factory map with WebGL + ES
-modules, which browsers refuse to load from a bare \`file://\` page.
-
-- **macOS:** make it executable once (\`chmod +x start-server.command\`), then
-  double-click **\`start-server.command\`**. It opens your browser at
-  \`http://localhost:8777/\`.
-- **Windows / Linux / anywhere with Python 3:** run \`python3 -m http.server 8777\`
-  in this folder, then open <http://localhost:8777/index.html>.
-
-Press **Ctrl+C** in the terminal to stop the server.
-
-### Quick look — open files directly
-
-\`index.html\`, \`info.html\`, \`items.html\`, \`energy.html\`, and \`kills.html\` are
-plain HTML and open fine by double-clicking. Only the **map** tabs need the
-local server above.
+**Just open \`index.html\` in any browser** (double-click it). Everything —
+including the interactive WebGL factory maps on the Planets / Platforms tabs —
+runs straight from disk: the map viewer is bundled as a single classic script and
+the map data is embedded, so there's no need for a local web server.
 
 ## What's included
 
@@ -129,27 +113,8 @@ local server above.
 | \`energy.html\`    | Power generation by source                         |
 | \`kills.html\`     | Enemies killed and units lost                      |
 
-Everything else (icons, fonts, the three.js map viewer, and the rendered map
-data \`assets/chartbundles/chartbundle.zip\`) lives under \`assets/\`.
-`;
-}
-
-/** macOS double-click launcher bundled inside the archive. */
-export function startServerCommand(): string {
-  return `#!/bin/bash
-# Double-click this file (macOS) to serve the offline copy. It starts a tiny
-# local web server and opens your browser. Press Ctrl+C to stop.
-cd "$(dirname "$0")" || exit 1
-
-PORT=8777
-while lsof -i :"$PORT" >/dev/null 2>&1; do PORT=$((PORT + 1)); done
-
-URL="http://localhost:$PORT/index.html"
-echo "Serving offline Factorio Galaxy copy at: $URL"
-echo "Press Ctrl+C to stop."
-
-( sleep 1; (command -v open >/dev/null && open "$URL") || (command -v xdg-open >/dev/null && xdg-open "$URL") ) &
-
-exec python3 -m http.server "$PORT"
+Everything else (icons, fonts, the bundled map viewer \`assets/js/viewer.js\`, and
+the embedded map data \`assets/chartbundles/chartbundle-data.js\`) lives under
+\`assets/\`.
 `;
 }

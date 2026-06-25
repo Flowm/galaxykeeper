@@ -32,18 +32,26 @@ to a single subrequest (well within the free-tier limit even for ~400 assets) an
 does the zipping client-side.
 
 The SPA (this repo's root) does the heavy lifting: it parses the pages, discovers
-every asset (icons, libraries, fonts, the three.js addon module graph, and the
-`chartbundle.zip` map data), rewrites every reference to a local path, patches the
-map viewer for offline use, and packs it all with [`fflate`](https://github.com/101arrowz/fflate).
+every asset (icons, libraries, fonts, and the `chartbundle.zip` map data),
+rewrites every reference to a local path, and packs it all with
+[`fflate`](https://github.com/101arrowz/fflate).
+
+### Opens straight from `file://` — no server
+
+The generated archive runs by double-clicking `index.html`; the interactive maps
+work too. Browsers block ES modules and `fetch()` on `file://`, so instead of the
+site's ES-module map viewer the archive ships a **single classic (non-module)
+bundle** of the viewer (`viewer/` → `assets/js/viewer.js`, three.js + zip.js +
+the ported chartbundle logic) and **embeds the map data as base64**
+(`assets/chartbundles/chartbundle-data.js`) so nothing is fetched at view time.
+The viewer bundle is built by `npm run build:viewer` and the SPA fetches it
+(`/viewer.js`) to drop into each archive.
 
 ### What's in the downloaded archive
 
-`index.html` (a landing page) + the six rewritten tab pages + `README.md` +
-`start-server.command`, plus everything under `assets/` (icons, fonts, JS map
-viewer, CSS, and the rendered map bundle). The interactive Planets / Platforms
-maps need a local web server (browsers block ES modules on `file://`) — the
-bundled `start-server.command` / `python3 -m http.server` handles that; the other
-tables open straight from disk.
+`index.html` (a landing page) + the six rewritten tab pages + `README.md`, plus
+everything under `assets/` (icons, fonts, CSS, the bundled `js/viewer.js`, and the
+embedded `chartbundles/chartbundle-data.js`).
 
 ## Develop
 

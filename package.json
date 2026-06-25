@@ -4,9 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:viewer": "vite build --config vite.viewer.config.ts",
+    "predev": "npm run build:viewer",
     "dev": "vite",
+    "prebuild": "npm run build:viewer",
     "build": "vite build",
     "preview": "vite preview",
+    "pretest": "npm run build:viewer",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "vue-tsc --noEmit",
@@ -16,7 +20,9 @@
     "deploy": "npm run build && cd worker && npm run deploy"
   },
   "dependencies": {
+    "@zip.js/zip.js": "^2.7.52",
     "fflate": "^0.8.2",
+    "three": "^0.168.0",
     "vue": "^3.5.38"
   },
   "devDependencies": {

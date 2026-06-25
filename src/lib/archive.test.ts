@@ -9,6 +9,19 @@ import { createDirectFetcher } from "./fetcher";
 
 const SAVE_URL = "https://factorio.com/galaxy/Sulfur%20II:%20Alpha7-6.G2T1";
 const REFERENCE = join(process.cwd(), "reference");
+// Built by the `pretest` hook (npm run build:viewer).
+const VIEWER_JS = new Uint8Array(readFileSync(join(process.cwd(), "public/viewer.js")));
+
+// Reference files the classic build intentionally drops (the ESM viewer + raw
+// zip + macOS launcher are replaced by the bundled viewer.js + embedded data).
+const DROPPED = new Set([
+  "assets/js/three.module.js",
+  "assets/js/zip.js",
+  "assets/js/lscache.js",
+  "assets/js/chartbundle.js",
+  "assets/chartbundles/chartbundle.zip",
+  "start-server.command",
+]);
 
 function walk(dir: string, base = dir): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -19,15 +32,14 @@ function walk(dir: string, base = dir): string[] {
 
 // Hits the live factorio.com via direct fetch (CORS does not apply in Node).
 describe("buildArchive (live network)", () => {
-  it("reproduces the hand-built reference archive", async () => {
-    const result = await buildArchive(SAVE_URL, createDirectFetcher());
-    // Optional: dump the produced zip to disk for manual inspection.
+  it("produces a file://-openable archive covering the reference content", async () => {
+    const result = await buildArchive(SAVE_URL, createDirectFetcher(), { viewerJs: VIEWER_JS });
     if (process.env.EMIT_ZIP) writeFileSync(process.env.EMIT_ZIP, result.bytes);
     const entries = unzipSync(result.bytes);
     const paths = Object.keys(entries);
     const dec = (p: string) => new TextDecoder().decode(entries[p]!);
 
-    // Required structural files.
+    // Required structural files (classic, server-free layout).
     for (const p of [
       "index.html",
       "info.html",
@@ -37,57 +49,48 @@ describe("buildArchive (live network)", () => {
       "energy.html",
       "kills.html",
       "README.md",
-      "start-server.command",
-      "assets/js/chartbundle.js",
-      "assets/js/three.module.js",
-      "assets/js/addons/controls/MapControls.js",
-      "assets/js/addons/controls/OrbitControls.js",
-      "assets/js/zip.js",
-      "assets/js/lscache.js",
-      "assets/chartbundles/chartbundle.zip",
+      "assets/js/viewer.js",
+      "assets/chartbundles/chartbundle-data.js",
       "assets/css/main.css",
     ]) {
       expect(paths, `missing ${p}`).toContain(p);
     }
+    // ES-module viewer + raw zip must be gone.
+    for (const p of DROPPED) expect(paths, `should not ship ${p}`).not.toContain(p);
 
     // Metadata + icon coverage.
     expect(result.meta.title).toBe("SpaceAge2");
     expect(result.iconCount).toBeGreaterThan(300);
     expect(paths.filter((p) => p.startsWith("assets/cdn/icons/")).length).toBeGreaterThan(300);
 
-    // chartbundle.js offline patches applied.
-    const cb = dec("assets/js/chartbundle.js");
-    expect(cb).toContain("useWebWorkers: false");
-    expect(cb).toContain("importBlob");
-    expect(cb).not.toContain("importHttpContent");
-
-    // Pages fully localised.
+    // Map pages are classic: no ES modules, no importmap, no fetch.
     const planets = dec("planets.html");
+    expect(planets).not.toContain('type="module"');
+    expect(planets).not.toContain('type="importmap"');
     expect(planets).not.toContain("chartbundles.cdn.factorio.com");
-    expect(planets).toContain("assets/chartbundles/chartbundle.zip");
-    expect(planets).toContain('"./assets/js/three.module.js"');
+    expect(planets).toContain('<script src="assets/js/viewer.js">');
+    expect(planets).toContain('<script src="assets/chartbundles/chartbundle-data.js">');
+    expect(planets).toContain("initChartbundleViewer(");
     expect(planets).toContain('href="planets.html"');
     expect(planets).toContain('href="info.html"');
 
     // main.css image refs localised.
     expect(dec("assets/css/main.css")).toContain("../img/");
 
-    // The rendered map bundle is the real one.
-    expect(entries["assets/chartbundles/chartbundle.zip"]!.length).toBe(985135);
+    // Embedded map data decodes to the real bundle.
+    const dataJs = dec("assets/chartbundles/chartbundle-data.js");
+    const b64 = /window\.__CHARTBUNDLE_DATA__=("[\s\S]*")/.exec(dataJs)![1]!;
+    expect(Buffer.from(JSON.parse(b64) as string, "base64").length).toBe(985135);
 
-    // Compare against the hand-built reference, if present locally.
+    // Compare coverage against the hand-built reference, if present locally.
     if (existsSync(REFERENCE)) {
       const got = new Set(paths);
-      // The only intentional rename vs. the manual build: fontawesome's CSS
-      // keeps its real basename instead of the hand-picked "fontawesome-" prefix.
       const normalize = (p: string) => (p === "assets/css/fontawesome-all.min.css" ? "assets/css/all.min.css" : p);
       const missing = walk(REFERENCE)
+        .filter((p) => !DROPPED.has(p) && !p.startsWith("assets/js/addons/"))
         .map(normalize)
         .filter((p) => !got.has(p));
       expect(missing, `archive is missing reference files: ${missing.join(", ")}`).toEqual([]);
-
-      const refZip = readFileSync(join(REFERENCE, "assets/chartbundles/chartbundle.zip"));
-      expect(entries["assets/chartbundles/chartbundle.zip"]!.length).toBe(refZip.length);
     }
   }, 240_000);
 });

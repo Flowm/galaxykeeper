@@ -19,6 +19,7 @@ export interface ChartbundleOpts {
   cdn: string;
   url: string;
   icons: Record<string, string>;
+  [key: string]: unknown;
 }
 
 export interface ArchiveProgress {
@@ -34,9 +35,7 @@ export interface Collected {
   pages: Map<TabName, string>;
   files: Map<string, Uint8Array>; // archive path -> raw bytes
   sources: Map<string, string>; // archive path -> source URL (for CSS url() resolution)
-  importmap: Record<string, string>;
   chartbundleOpts: ChartbundleOpts;
-  chartbundleJsImport: string; // raw specifier, e.g. "/static/chartbundle/chartbundle.js?v=..."
   iconCount: number;
 }
 

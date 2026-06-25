@@ -18,6 +18,15 @@ const errorMsg = ref("");
 const fetcher = createProxyFetcher();
 const buildSha = __BUILD_SHA__;
 
+let viewerJsCache: Uint8Array | null = null;
+async function loadViewerJs(): Promise<Uint8Array> {
+  if (viewerJsCache) return viewerJsCache;
+  const res = await fetch("/viewer.js");
+  if (!res.ok) throw new Error(`Could not load the bundled map viewer (${res.status}).`);
+  viewerJsCache = new Uint8Array(await res.arrayBuffer());
+  return viewerJsCache;
+}
+
 const percent = computed(() => {
   const p = progress.value;
   return p && p.total > 0 ? Math.round((p.loaded / p.total) * 100) : 0;
@@ -35,8 +44,12 @@ async function run(): Promise<void> {
   result.value = null;
   errorMsg.value = "";
   try {
-    result.value = await buildArchive(input, fetcher, (p) => {
-      progress.value = p;
+    const viewerJs = await loadViewerJs();
+    result.value = await buildArchive(input, fetcher, {
+      viewerJs,
+      onProgress: (p) => {
+        progress.value = p;
+      },
     });
     state.value = "done";
   } catch (err) {
@@ -139,9 +152,8 @@ function reset(): void {
       </div>
 
       <p class="mt-5 border-t border-white/10 pt-4 text-xs leading-relaxed text-zinc-500">
-        Unzip and open <code class="text-zinc-300">index.html</code>. The Info / Items / Energy / Kills tables work straight from disk; the interactive
-        <strong class="text-zinc-300">Planets / Platforms maps</strong> need the bundled local server (run <code class="text-zinc-300">start-server.command</code> on macOS, or
-        <code class="text-zinc-300">python3 -m http.server</code>) — see the included <code class="text-zinc-300">README.md</code>.
+        Unzip and open <code class="text-zinc-300">index.html</code> in any browser. Everything — including the interactive
+        <strong class="text-zinc-300">Planets / Platforms maps</strong> — runs straight from disk, with no web server and no internet.
       </p>
     </section>
 

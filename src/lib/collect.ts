@@ -5,7 +5,6 @@ import { pool } from "./pool";
 import { TABS, type ChartbundleOpts, type Collected, type GalaxyMeta, type OnProgress, type TabName } from "./types";
 
 const decoder = new TextDecoder();
-const encoder = new TextEncoder();
 
 function txt(el: Element | null): string {
   return (el?.textContent ?? "").trim();
@@ -34,24 +33,12 @@ function balancedObject(text: string, from: number): string {
   throw new Error("unbalanced viewer config");
 }
 
-interface ViewerConfig {
-  opts: ChartbundleOpts;
-  importmap: Record<string, string>;
-  chartbundleJsImport: string;
-}
-
-function parseViewer(html: string): ViewerConfig {
+function parseViewer(html: string): ChartbundleOpts {
   const idx = html.indexOf("initChartbundleViewer(");
   if (idx < 0) throw new Error("No interactive map found on this save — is the link a Galaxy of Fame page?");
-  const obj = JSON.parse(balancedObject(html, idx)) as { cdn: string; url: string; icons?: Record<string, string> };
-
-  const imMatch = html.match(/<script type="importmap">([\s\S]*?)<\/script>/);
-  const importmap = imMatch ? ((JSON.parse(imMatch[1]!) as { imports?: Record<string, string> }).imports ?? {}) : {};
-
-  const cbMatch = html.match(/from\s*["']([^"']*\/chartbundle\.js[^"']*)["']/);
-  const chartbundleJsImport = cbMatch?.[1] ?? "/static/chartbundle/chartbundle.js";
-
-  return { opts: { cdn: obj.cdn, url: obj.url, icons: obj.icons ?? {} }, importmap, chartbundleJsImport };
+  const obj = JSON.parse(balancedObject(html, idx)) as ChartbundleOpts;
+  obj.icons = obj.icons ?? {};
+  return obj;
 }
 
 function parseMeta(html: string, saveSegment: string): GalaxyMeta {
@@ -112,43 +99,6 @@ async function drain(
   });
 }
 
-/** Walk three.js addon modules, following relative + three/addons imports. */
-async function crawlAddons(importmap: Record<string, string>, infoUrl: string, files: Map<string, Uint8Array>, sources: Map<string, string>, fetcher: Fetcher): Promise<void> {
-  const prefix = importmap["three/addons/"];
-  if (!prefix) return;
-  const absBase = absolutize(prefix, infoUrl);
-
-  const seen = new Set<string>();
-  const toVisit: string[] = [];
-  const addSpec = (spec: string, fromUrl: string) => {
-    let abs: string | null = null;
-    if (spec.startsWith("three/addons/")) abs = absBase + spec.slice("three/addons/".length);
-    else if (spec.startsWith("./") || spec.startsWith("../")) abs = new URL(spec, fromUrl).href;
-    if (abs && !seen.has(abs)) {
-      seen.add(abs);
-      toVisit.push(abs);
-    }
-  };
-
-  const cb = files.get("assets/js/chartbundle.js");
-  if (cb) for (const m of decoder.decode(cb).matchAll(/from\s*["']([^"']+)["']/g)) addSpec(m[1]!, absBase);
-
-  while (toVisit.length > 0) {
-    const url = toVisit.pop()!;
-    const local = mapUrlToLocal(url);
-    if (!local || files.has(local)) continue;
-    let text: string;
-    try {
-      text = await fetcher.text(url);
-    } catch {
-      continue;
-    }
-    files.set(local, encoder.encode(text));
-    sources.set(local, url);
-    for (const m of text.matchAll(/from\s*["']([^"']+)["']/g)) addSpec(m[1]!, url);
-  }
-}
-
 export async function collect(input: string, fetcher: Fetcher, onProgress?: OnProgress): Promise<Collected> {
   const { tabUrls, saveSegment } = parseGalaxyUrl(input);
 
@@ -163,7 +113,7 @@ export async function collect(input: string, fetcher: Fetcher, onProgress?: OnPr
   const meta = parseMeta(pages.get("info")!, saveSegment);
   const viewerSrc = pages.get("planets") ?? pages.get("platforms");
   if (!viewerSrc) throw new Error("Galaxy pages are incomplete.");
-  const { opts: chartbundleOpts, importmap, chartbundleJsImport } = parseViewer(viewerSrc);
+  const chartbundleOpts = parseViewer(viewerSrc);
 
   const files = new Map<string, Uint8Array>();
   const sources = new Map<string, string>();
@@ -187,23 +137,18 @@ export async function collect(input: string, fetcher: Fetcher, onProgress?: OnPr
   // The rendered map bundle.
   enqueue(chartbundleOpts.url);
 
-  // Stylesheets / scripts / images referenced across the pages.
+  // Stylesheets / scripts / images referenced across the pages. The ES-module
+  // map viewer (three.js + chartbundle.js, declared in the importmap) is NOT
+  // collected — it's replaced by the bundled classic viewer (assets/js/viewer.js)
+  // so the archive runs from file:// without a server.
   for (const html of pages.values()) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     for (const el of doc.querySelectorAll("link[href]")) enqueue(absolutize(el.getAttribute("href")!, tabUrls.info));
     for (const el of doc.querySelectorAll("script[src]")) enqueue(absolutize(el.getAttribute("src")!, tabUrls.info));
     for (const el of doc.querySelectorAll("img[src]")) enqueue(absolutize(el.getAttribute("src")!, tabUrls.info));
   }
-  // Importmap leaf modules (skip the "three/addons/" prefix — crawled below).
-  for (const [key, val] of Object.entries(importmap)) {
-    if (!key.endsWith("/")) enqueue(absolutize(val, tabUrls.info));
-  }
-  enqueue(absolutize(chartbundleJsImport, tabUrls.info));
 
   await drain(queue, files, sources, fetcher, onProgress, "Downloading icons & assets");
-
-  // three.js addon modules (MapControls -> OrbitControls, lil-gui, CSS2DRenderer).
-  await crawlAddons(importmap, tabUrls.info, files, sources, fetcher);
 
   // Fonts + images referenced from inside the fetched CSS, and the rocket image
   // referenced from factorio.js.
@@ -230,5 +175,5 @@ export async function collect(input: string, fetcher: Fetcher, onProgress?: OnPr
 
   await drain(queue, files, sources, fetcher, onProgress, "Downloading fonts & images");
 
-  return { meta, pages, files, sources, importmap, chartbundleOpts, chartbundleJsImport, iconCount };
+  return { meta, pages, files, sources, chartbundleOpts, iconCount };
 }
