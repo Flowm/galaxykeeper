@@ -89,7 +89,7 @@ export function readmeMd(meta: GalaxyMeta, savedDate: string): string {
 
 A fully self-contained, offline snapshot of the Factorio *Galaxy of Fame* entry
 **${meta.starName} — \`${star}\`** (Factorio ${meta.version || "?"}). Captured
-${savedDate} with the Factorio Galaxy Archiver.
+${savedDate} with Galaxy Keeper.
 
 The Galaxy of Fame keeps only one upload per player, so this preserves the viewer
 locally so it survives a future re-upload. **No internet connection is required.**

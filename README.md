@@ -1,4 +1,4 @@
-# Factorio Galaxy Archiver
+# Galaxy Keeper
 
 The Factorio **Galaxy of Fame** keeps only **one uploaded save per player** — upload
 a new save and the previous one's online viewer (the per-save Info / Planets /
@@ -10,7 +10,7 @@ offline copy** you can download as a `.zip` and keep forever. Paste a galaxy URL
 watch it collect the pages, ~370 icons, fonts, the three.js map viewer and the
 rendered map bundle, and download the result.
 
-Live at **[factorio-galaxy-archiver.frcy.org](https://factorio-galaxy-archiver.frcy.org)**.
+Live at **[galaxykeeper.frcy.org](https://galaxykeeper.frcy.org)**.
 
 ## How it works
 
@@ -82,7 +82,7 @@ npm run deploy             # builds the SPA, then `wrangler deploy` from worker/
 
 The Worker serves the built `dist/` as static assets and handles `/proxy`; it's
 configured (`worker/wrangler.jsonc`) to deploy to the custom domain
-**factorio-galaxy-archiver.frcy.org**.
+**galaxykeeper.frcy.org**.
 
 ## Project layout
 

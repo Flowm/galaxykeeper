@@ -82,9 +82,9 @@ function reset(): void {
     <header class="text-center">
       <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium tracking-wide text-amber-300">
         <span class="size-1.5 rounded-full bg-amber-400"></span>
-        Galaxy of Fame backup
+        Factorio Galaxy of Fame backup
       </div>
-      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Factorio Galaxy Archiver</h1>
+      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Galaxy Keeper</h1>
       <p class="mx-auto mt-3 max-w-xl text-balance text-zinc-400">
         The Galaxy of Fame keeps only <strong class="text-zinc-200">one upload per player</strong>. Paste your galaxy link to download a complete, self-contained
         <strong class="text-zinc-200">offline copy</strong> — every page, icon, font and the interactive factory map — before you re-upload.

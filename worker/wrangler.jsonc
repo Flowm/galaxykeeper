@@ -1,12 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "factorio-galaxy-archiver",
+  "name": "galaxy-keeper",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-10",
   "send_metrics": false,
   "routes": [
     {
-      "pattern": "factorio-galaxy-archiver.frcy.org",
+      "pattern": "galaxykeeper.frcy.org",
       "custom_domain": true,
     },
   ],
