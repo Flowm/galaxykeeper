@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Cloudflare / wrangler
+.wrangler/
+.dev.vars
+
+# Local verification fixture (the hand-built reference archive; large)
+reference/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Caches
+*.tsbuildinfo
+.cache/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.local
+
+# Claude Code local preview config
+.claude/

@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "factorio-galaxy-archiver",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-10",
+  "send_metrics": false,
+  "routes": [
+    {
+      "pattern": "factorio-galaxy-archiver.frcy.org",
+      "custom_domain": true,
+    },
+  ],
+  "assets": {
+    "directory": "../dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/proxy"],
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

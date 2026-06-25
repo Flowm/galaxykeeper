@@ -1,0 +1,36 @@
+{
+  "name": "factorio-galaxy-archiver",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "oxlint && oxfmt --check && vue-tsc",
+    "lint:fix": "oxlint --fix && oxfmt --write",
+    "dev:worker": "cd worker && npm run dev",
+    "deploy": "npm run build && cd worker && npm run deploy"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "vue": "^3.5.38"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.9.3",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/tsconfig": "^0.9.1",
+    "jsdom": "^29.1.1",
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8",
+    "vue-tsc": "^3.3.4"
+  }
+}

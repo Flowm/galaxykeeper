@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "vue"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "consistent-function-scoping": "off",
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "no-underscore-dangle": "off"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true,
+    "vue": true
+  },
+  "ignorePatterns": ["dist", "reference", "worker"]
+}

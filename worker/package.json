@@ -1,0 +1,21 @@
+{
+  "name": "factorio-galaxy-archiver-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --port 8787",
+    "lint": "oxlint && oxfmt --check && tsc --noEmit",
+    "lint:fix": "oxlint --fix && oxfmt --write",
+    "generate-types": "wrangler types src/worker-configuration.d.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.100.0"
+  }
+}
