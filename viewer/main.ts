@@ -1,20 +1,19 @@
-import * as zip from "@zip.js/zip.js";
 // Classic (non-module) build of the Factorio chartbundle map viewer, bundled by
 // Vite into a single IIFE so the offline archive works straight from file://
 // (no dev server, no ES modules, no fetch). Ported from factorio.com's
 // /static/chartbundle/chartbundle.js with three offline changes:
 //   1. the map bundle is read from an embedded base64 global (window
-//      .__CHARTBUNDLE_DATA__) instead of an HTTP range request,
-//   2. zip.js decompresses on the main thread (no worker script), and
+//      .__CHARTBUNDLE_DATA__) and unzipped in-memory with fflate (the same zip
+//      library the archiver itself uses), instead of an HTTP range request,
+//   2. tiles are pulled straight from that in-memory map, and
 //   3. texture loaders use an empty crossOrigin so file:// icons load.
 /* eslint-disable */
 // @ts-nocheck
+import { unzipSync } from "fflate";
 import * as THREE from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js";
-
-zip.configure({ useWebWorkers: false });
 
 function base64ToBytes(b64) {
   const bin = atob(b64);
@@ -23,13 +22,20 @@ function base64ToBytes(b64) {
   return bytes;
 }
 
+function bytesToDataUri(bytes) {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  return "data:image/png;base64," + btoa(binary);
+}
+
 var scene;
 var camera;
 var renderer;
 var target;
 var controls;
 var gui;
-var zipFs;
+var bundle; // unzipped map: { "chartbundle/...": Uint8Array }
 var bundleInfo;
 var guiData;
 var chartSprites = new Array();
@@ -84,14 +90,13 @@ async function initChartbundleViewer(opts) {
   controls.minDistance = chartbundleOpts.min_z;
   controls.listenToKeyEvents(window);
 
-  // INIT Zip.js — load the embedded bundle (no network).
-  zipFs = new zip.fs.FS();
+  // Unzip the embedded bundle in-memory (no network).
   if (!window.__CHARTBUNDLE_DATA__) {
     loadingInfo.textContent = "Map bundle data missing (assets/chartbundles/chartbundle-data.js).";
     return;
   }
-  await zipFs.importUint8Array(base64ToBytes(window.__CHARTBUNDLE_DATA__));
-  bundleInfo = JSON.parse(await zipFs.find("chartbundle/info.json").getText());
+  bundle = unzipSync(base64ToBytes(window.__CHARTBUNDLE_DATA__));
+  bundleInfo = JSON.parse(new TextDecoder().decode(bundle["chartbundle/info.json"]));
   var chartNames = bundleInfo.charts.filter((chart) => chart.type == chartbundleOpts.type).map((chart) => chart.id);
 
   if (chartNames.length == 0) {
@@ -141,9 +146,10 @@ async function loadSelectedChart(chartname) {
   currentChartName = chartname;
   currentChartInfo = chartInfo;
 
-  let zipChartFolder = zipFs.getChildByName("chartbundle").getChildByName("charts").getChildByName(chartname);
+  const chartPrefix = `chartbundle/charts/${chartname}/`;
+  const tileNames = Object.keys(bundle).filter((k) => k.startsWith(chartPrefix) && k.endsWith(".png"));
 
-  spritesTotalCount = zipChartFolder.children.length;
+  spritesTotalCount = tileNames.length;
   spritesLoadedCount = 0;
   loadingInfo.style.display = "block";
 
@@ -178,12 +184,12 @@ async function loadSelectedChart(chartname) {
   const loader = new THREE.TextureLoader();
   loader.crossOrigin = ""; // allow file:// textures
   const chartChunkPositions = new Array();
-  for (const zipChartFolderEntry of zipChartFolder.children) {
-    const match = zipChartFolderEntry.name.match(/(-?\d+)_(-?\d+)/);
+  for (const tileName of tileNames) {
+    const match = tileName.slice(chartPrefix.length).match(/(-?\d+)_(-?\d+)/);
     if (match) {
       chartChunkPositions.push({ x: parseInt(match[1], 10), y: parseInt(match[2], 10) });
     } else {
-      console.log("invalid tile name", zipChartFolderEntry.name);
+      console.log("invalid tile name", tileName);
     }
   }
   chartChunkPositions.sort((a, b) => Math.abs(a.x) + Math.abs(a.y) - (Math.abs(b.x) + Math.abs(b.y)));
@@ -215,10 +221,8 @@ async function loadSelectedChart(chartname) {
       chartSprites.push(grid);
     }
 
-    const chartChunkFilename = `${x}_${y}.png`;
-    // Read the tile straight from the in-memory zip (no lscache needed).
-    const zipChartFolderEntry = zipChartFolder.getChildByName(chartChunkFilename);
-    const textureBlob = await zipChartFolderEntry.getData64URI("image/png");
+    // Read the tile straight from the in-memory map as a data URI.
+    const textureBlob = bytesToDataUri(bundle[`${chartPrefix}${x}_${y}.png`]);
 
     const activeChartname = chartname;
     loader.load(
