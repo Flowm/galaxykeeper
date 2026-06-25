@@ -90,5 +90,5 @@ export async function buildArchive(input: string, fetcher: Fetcher, options: Bui
   onProgress?.({ step: "Done", loaded: 1, total: 1 });
 
   const safeTitle = (meta.title || "galaxy").replace(/[^\w.-]+/g, "_");
-  return { bytes, filename: `${savedDate}-factorio-${safeTitle}.zip`, meta, fileCount: tree.size, iconCount };
+  return { bytes, filename: `${savedDate}-Factorio-${safeTitle}.zip`, meta, fileCount: tree.size, iconCount };
 }
