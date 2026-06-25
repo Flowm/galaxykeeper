@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { unzipSync } from "fflate";
@@ -21,6 +21,8 @@ function walk(dir: string, base = dir): string[] {
 describe("buildArchive (live network)", () => {
   it("reproduces the hand-built reference archive", async () => {
     const result = await buildArchive(SAVE_URL, createDirectFetcher());
+    // Optional: dump the produced zip to disk for manual inspection.
+    if (process.env.EMIT_ZIP) writeFileSync(process.env.EMIT_ZIP, result.bytes);
     const entries = unzipSync(result.bytes);
     const paths = Object.keys(entries);
     const dec = (p: string) => new TextDecoder().decode(entries[p]!);
