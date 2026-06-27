@@ -1,6 +1,5 @@
 /// <reference types="vitest/config" />
 import { execSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
@@ -18,7 +17,6 @@ const buildSha = (() => {
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
     tsconfigPaths: true,
   },
   define: {

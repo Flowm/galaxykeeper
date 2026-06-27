@@ -1,0 +1,12 @@
+packages:
+  - worker
+
+catalog:
+  typescript: ^6.0.3
+  oxlint: ^1.71.0
+  oxfmt: ^0.56.0
+
+allowBuilds:
+  esbuild: false
+  sharp: false
+  workerd: true

@@ -44,7 +44,7 @@ site's ES-module map viewer the archive ships a **single classic (non-module)
 bundle** of the viewer (`viewer/` → `assets/js/viewer.js`, three.js + zip.js +
 the ported chartbundle logic) and **embeds the map data as base64**
 (`assets/chartbundles/chartbundle-data.js`) so nothing is fetched at view time.
-The viewer bundle is built by `npm run build:viewer` and the SPA fetches it
+The viewer bundle is built by `pnpm build:viewer` and the SPA fetches it
 (`/viewer.js`) to drop into each archive.
 
 ### What's in the downloaded archive
@@ -56,28 +56,28 @@ embedded `chartbundles/chartbundle-data.js`).
 ## Develop
 
 ```sh
-npm install                # root SPA deps
-cd worker && npm install && cd ..
+mise install         # provision Node 24 + pnpm 11 (see mise.toml); or bring your own
+pnpm install               # root SPA deps (covers the worker package too)
 
 # Two terminals (HMR + the proxy):
-npm run dev:worker         # wrangler dev on :8787 (the /proxy data collector)
-npm run dev                # vite on :5173, proxies /proxy -> :8787
+pnpm dev:worker            # wrangler dev on :8787 (the /proxy data collector)
+pnpm dev                   # vite on :5173, proxies /proxy -> :8787
 ```
 
 Or run a single prod-like server (no HMR) — build first so the Worker has assets:
 
 ```sh
-npm run build && (cd worker && npm run dev)   # serves dist/ + /proxy on :8787
+pnpm build && pnpm --filter galaxy-keeper-worker dev   # serves dist/ + /proxy on :8787
 ```
 
-`npm run lint` runs oxlint + oxfmt + `vue-tsc`. `npm test` runs a live integration
+`pnpm lint` runs oxlint + oxfmt + `vue-tsc`. `pnpm test` runs a live integration
 test that builds the sample archive end-to-end and checks it against the committed
 reference (network + the local `reference/` fixture; not run in CI).
 
 ## Build & deploy
 
 ```sh
-npm run deploy             # builds the SPA, then `wrangler deploy` from worker/
+pnpm deploy                # builds the SPA, then `wrangler deploy` from worker/
 ```
 
 The Worker serves the built `dist/` as static assets and handles `/proxy`; it's

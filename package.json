@@ -5,37 +5,38 @@
   "type": "module",
   "scripts": {
     "build:viewer": "vite build --config vite.viewer.config.ts",
-    "predev": "npm run build:viewer",
+    "predev": "pnpm run build:viewer",
     "dev": "vite",
-    "prebuild": "npm run build:viewer",
+    "prebuild": "pnpm run build:viewer",
     "build": "vite build",
     "preview": "vite preview",
-    "pretest": "npm run build:viewer",
+    "pretest": "pnpm run build:viewer",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "vue-tsc --noEmit",
     "lint": "oxlint && oxfmt --check && vue-tsc",
     "lint:fix": "oxlint --fix && oxfmt --write",
-    "dev:worker": "cd worker && npm run dev",
-    "deploy": "npm run build && cd worker && npm run deploy"
+    "dev:worker": "pnpm --filter galaxy-keeper-worker dev",
+    "deploy": "pnpm build && pnpm --filter galaxy-keeper-worker deploy"
   },
   "dependencies": {
     "fflate": "^0.8.3",
     "three": "^0.184.0",
-    "vue": "^3.5.38"
+    "vue": "^3.5.39"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/tsconfig": "^0.9.1",
     "jsdom": "^29.1.1",
-    "oxfmt": "^0.56.0",
-    "oxlint": "^1.71.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
     "tailwindcss": "^4.3.1",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.16",
+    "typescript": "catalog:",
+    "vite": "8.0.16",
     "vitest": "^4.1.9",
     "vue-tsc": "^3.3.5"
-  }
+  },
+  "packageManager": "pnpm@11.9.0"
 }
