@@ -14,10 +14,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "vue-tsc --noEmit",
-    "lint": "oxlint && oxfmt --check && vue-tsc",
-    "lint:fix": "oxlint --fix && oxfmt --write",
+    "lint": "pnpm lint:web && pnpm lint:worker",
+    "lint:web": "oxlint && oxfmt --check && vue-tsc",
+    "lint:worker": "pnpm --filter galaxy-keeper-worker lint",
+    "lint:fix": "pnpm lint:fix:web && pnpm lint:fix:worker",
+    "lint:fix:web": "oxlint --fix && oxfmt --write",
+    "lint:fix:worker": "pnpm --filter galaxy-keeper-worker lint:fix",
     "dev:worker": "pnpm --filter galaxy-keeper-worker dev",
-    "deploy": "pnpm build && pnpm --filter galaxy-keeper-worker deploy"
+    "deploy": "pnpm build && pnpm --filter galaxy-keeper-worker deploy",
+    "deploy:preview": "pnpm build && pnpm --filter galaxy-keeper-worker deploy:preview"
   },
   "dependencies": {
     "fflate": "^0.8.3",
