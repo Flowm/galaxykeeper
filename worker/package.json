@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "deploy": "wrangler deploy",
-    "deploy:preview": "wrangler versions upload --preview-alias preview-$(git rev-parse HEAD | head -c 8)",
+    "deploy:preview": "wrangler versions upload --preview-alias preview-$(git rev-parse --short=8 HEAD)",
     "dev": "wrangler dev --port 8787",
     "lint": "oxlint && oxfmt --check && tsc --noEmit",
     "lint:fix": "oxlint --fix && oxfmt --write",
