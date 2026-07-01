@@ -7,6 +7,9 @@ import { defineConfig } from "vite";
 // generated archive so the interactive map runs from file:// with no ES
 // modules and no dev server. Kept separate from the SPA build (different format).
 export default defineConfig({
+  // This build only emits viewer.js into public/; without this, Vite would
+  // try to copy public/ into itself (outDir === publicDir).
+  publicDir: false,
   build: {
     lib: {
       entry: fileURLToPath(new URL("./viewer/main.ts", import.meta.url)),
