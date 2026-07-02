@@ -13,7 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260630.1",
+    "@cloudflare/workers-types": "^4.20260701.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
