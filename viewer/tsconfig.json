@@ -1,0 +1,19 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "types": ["three"],
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "target": "ES2020",
+    // main.ts is a close port of factorio.com's chartbundle.js (kept intentionally
+    // faithful for easy re-porting), so per-variable annotations aren't added;
+    // implicit-any is tolerated here while everything else stays strict and
+    // three.js API calls are fully type-checked.
+    "noImplicitAny": false
+  },
+  "include": ["main.ts", "viewer-globals.d.ts"]
+}

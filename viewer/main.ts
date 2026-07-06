@@ -7,8 +7,6 @@
 //      library the archiver itself uses), instead of an HTTP range request,
 //   2. tiles are pulled straight from that in-memory map, and
 //   3. texture loaders use an empty crossOrigin so file:// icons load.
-/* eslint-disable */
-// @ts-nocheck
 import { unzipSync } from "fflate";
 import * as THREE from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
@@ -107,7 +105,7 @@ async function initChartbundleViewer(opts) {
 
   for (const button of planetsSelector.children) {
     const chartId = button.getAttribute("data-chartid");
-    button.onclick = createOnClickHandler(chartId);
+    button.addEventListener("click", () => loadSelectedChart(chartId));
   }
 
   gui = new GUI();
@@ -133,12 +131,6 @@ async function initChartbundleViewer(opts) {
 
   loadSelectedChart(chartname);
   render();
-}
-
-function createOnClickHandler(chartId) {
-  return function () {
-    loadSelectedChart(chartId);
-  };
 }
 
 async function loadSelectedChart(chartname) {
@@ -187,7 +179,7 @@ async function loadSelectedChart(chartname) {
   for (const tileName of tileNames) {
     const match = tileName.slice(chartPrefix.length).match(/(-?\d+)_(-?\d+)/);
     if (match) {
-      chartChunkPositions.push({ x: parseInt(match[1], 10), y: parseInt(match[2], 10) });
+      chartChunkPositions.push({ x: parseInt(match[1]!, 10), y: parseInt(match[2]!, 10) });
     } else {
       console.log("invalid tile name", tileName);
     }
@@ -240,7 +232,7 @@ async function loadSelectedChart(chartname) {
         chartSprites.push(sprite);
         spritesLoadedCount += 1;
       },
-      null,
+      undefined,
       (err) => {
         console.log("error while loading texture", x, y, err);
         spritesLoadedCount += 1;
@@ -288,7 +280,7 @@ function loadRecipeIcons(chartInfo) {
           spritesLoadedCount += 1;
         }
       },
-      null,
+      undefined,
       (err) => {
         spritesLoadedCount += 1;
         console.log("error while loading texture", iconPath, processedIconPath, err);
@@ -329,7 +321,7 @@ function createLabel(message) {
   return label;
 }
 
-function resizeRendererToDisplaySize(force) {
+function resizeRendererToDisplaySize(force?) {
   const canvas = renderer.domElement;
   const targetBounds = renderer.domElement.parentElement.getBoundingClientRect();
   const pixelRatio = window.devicePixelRatio;

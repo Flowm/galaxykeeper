@@ -9,8 +9,6 @@ import { createDirectFetcher } from "./fetcher";
 
 const SAVE_URL = "https://factorio.com/galaxy/Sulfur%20II:%20Alpha7-6.G2T1";
 const REFERENCE = join(process.cwd(), "reference");
-// Built by the `pretest` hook (npm run build:viewer).
-const VIEWER_JS = new Uint8Array(readFileSync(join(process.cwd(), "public/viewer.js")));
 
 // Reference files the classic build intentionally drops (the ESM viewer + raw
 // zip + macOS launcher are replaced by the bundled viewer.js + embedded data).
@@ -30,10 +28,16 @@ function walk(dir: string, base = dir): string[] {
   });
 }
 
-// Hits the live factorio.com via direct fetch (CORS does not apply in Node).
-describe("buildArchive (live network)", () => {
+// Live integration test: hits the real factorio.com via direct fetch (CORS does
+// not apply in Node) and compares the built archive against the hand-built
+// reference archive. It needs both network access and the large, gitignored
+// `reference/` fixture, so it's skipped whenever that fixture is absent — which
+// is the case in CI (`pnpm test` runs green there without either).
+describe.skipIf(!existsSync(REFERENCE))("buildArchive (live network)", () => {
   it("produces a file://-openable archive covering the reference content", async () => {
-    const result = await buildArchive(SAVE_URL, createDirectFetcher(), { viewerJs: VIEWER_JS });
+    // Built by the `pretest` hook (pnpm run build:viewer).
+    const viewerJs = new Uint8Array(readFileSync(join(process.cwd(), "public/viewer.js")));
+    const result = await buildArchive(SAVE_URL, createDirectFetcher(), { viewerJs });
     if (process.env.EMIT_ZIP) writeFileSync(process.env.EMIT_ZIP, result.bytes);
     const entries = unzipSync(result.bytes);
     const paths = Object.keys(entries);
@@ -82,15 +86,14 @@ describe("buildArchive (live network)", () => {
     const b64 = /window\.__CHARTBUNDLE_DATA__=("[\s\S]*")/.exec(dataJs)![1]!;
     expect(Buffer.from(JSON.parse(b64) as string, "base64").length).toBe(985135);
 
-    // Compare coverage against the hand-built reference, if present locally.
-    if (existsSync(REFERENCE)) {
-      const got = new Set(paths);
-      const normalize = (p: string) => (p === "assets/css/fontawesome-all.min.css" ? "assets/css/all.min.css" : p);
-      const missing = walk(REFERENCE)
-        .filter((p) => !DROPPED.has(p) && !p.startsWith("assets/js/addons/"))
-        .map(normalize)
-        .filter((p) => !got.has(p));
-      expect(missing, `archive is missing reference files: ${missing.join(", ")}`).toEqual([]);
-    }
+    // Compare coverage against the hand-built reference (present because the
+    // suite is gated on it above).
+    const got = new Set(paths);
+    const normalize = (p: string) => (p === "assets/css/fontawesome-all.min.css" ? "assets/css/all.min.css" : p);
+    const missing = walk(REFERENCE)
+      .filter((p) => !DROPPED.has(p) && !p.startsWith("assets/js/addons/"))
+      .map(normalize)
+      .filter((p) => !got.has(p));
+    expect(missing, `archive is missing reference files: ${missing.join(", ")}`).toEqual([]);
   }, 240_000);
 });

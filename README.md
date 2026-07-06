@@ -70,9 +70,13 @@ Or run a single prod-like server (no HMR) — build first so the Worker has asse
 pnpm build && pnpm --filter galaxy-keeper-worker dev   # serves dist/ + /proxy on :8787
 ```
 
-`pnpm lint` runs oxlint + oxfmt + `vue-tsc`. `pnpm test` runs a live integration
-test that builds the sample archive end-to-end and checks it against the committed
-reference (network + the local `reference/` fixture; not run in CI).
+`pnpm lint` runs oxlint + oxfmt + `vue-tsc` (over both the SPA and the `viewer/`
+bundle). `pnpm test` runs a live integration test that builds the sample archive
+end-to-end and checks it against the hand-built reference. That test needs both
+network access and the large, gitignored `reference/` fixture, so it **skips
+itself cleanly whenever `reference/` is absent** — which is the case in CI, where
+`pnpm test` therefore runs green without touching the network. To exercise it,
+drop the reference archive into `reference/` locally and run `pnpm test`.
 
 ## Build & deploy
 

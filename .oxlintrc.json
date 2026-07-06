@@ -17,5 +17,5 @@
     "node": true,
     "vue": true
   },
-  "ignorePatterns": ["dist", "reference", "worker", "viewer"]
+  "ignorePatterns": ["dist", "reference", "worker"]
 }
