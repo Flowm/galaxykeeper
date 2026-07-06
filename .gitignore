@@ -29,4 +29,5 @@ npm-debug.log*
 *.local
 
 # Claude Code local preview config
-.claude/
+.claude/*
+!.claude/launch.json

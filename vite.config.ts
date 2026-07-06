@@ -5,6 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 
+const port = process.env.PORT ? Number(process.env.PORT) : undefined;
+
 const buildDate = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 const buildSha = (() => {
   try {
@@ -24,11 +26,17 @@ export default defineConfig({
     __BUILD_SHA__: JSON.stringify(buildSha),
   },
   server: {
+    port,
+    strictPort: port !== undefined,
     // In dev (`vite` on :5173) the Worker isn't bundled in, so forward the
     // data-collection endpoint to a locally-running `wrangler dev` (:8787).
     proxy: {
       "/proxy": "http://localhost:8787",
     },
+  },
+  preview: {
+    port,
+    strictPort: port !== undefined,
   },
   test: {
     // jsdom gives the archiving lib a real DOMParser in Node test runs.
