@@ -56,8 +56,9 @@ embedded `chartbundles/chartbundle-data.js`).
 ## Develop
 
 ```sh
-mise install         # provision Node 24 + pnpm 11 (see mise.toml); or bring your own
-pnpm install               # root SPA deps (covers the worker package too)
+mise trust && mise install   # toolchain (node, pnpm, prek) — see mise.toml
+mise setup                   # install the pre-commit hooks
+pnpm install                 # root SPA deps (covers the worker package too)
 
 # Two terminals (HMR + the proxy):
 pnpm dev:worker            # wrangler dev on :8787 (the /proxy data collector)

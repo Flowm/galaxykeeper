@@ -1,6 +1,9 @@
 packages:
   - worker
 
+publicHoistPattern:
+  - "workbox-window"
+
 catalog:
   typescript: ^6.0.3
   oxlint: ^1.72.0

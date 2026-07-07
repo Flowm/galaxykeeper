@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
+import PWAUpdateBar from "@/components/PWAUpdateBar.vue";
 import { buildArchive } from "@/lib/archive";
 import { createProxyFetcher } from "@/lib/fetcher";
 import type { ArchiveProgress, ArchiveResult } from "@/lib/types";
@@ -174,4 +175,6 @@ function reset(): void {
       <span class="text-ink-500">build {{ buildSha }}</span>
     </footer>
   </div>
+
+  <PWAUpdateBar />
 </template>
