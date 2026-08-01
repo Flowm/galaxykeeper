@@ -10,6 +10,11 @@ public/viewer.js
 .wrangler/
 .dev.vars
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
 # Local verification fixture (the hand-built reference archive; large)
 reference/
 
