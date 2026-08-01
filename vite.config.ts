@@ -44,6 +44,7 @@ export default defineConfig({
         start_url: "/",
         scope: "/",
         id: "galaxy-keeper",
+        orientation: "natural",
       },
       workbox: {
         // Precache the built app shell. The proxied Factorio data (/proxy) is
@@ -71,6 +72,23 @@ export default defineConfig({
   define: {
     __BUILD_DATE__: JSON.stringify(buildDate),
     __BUILD_SHA__: JSON.stringify(buildSha),
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          // Split the framework out of the app chunk so it caches independently
+          // across deploys. Deliberately no `src` catch-all: it would fold app
+          // modules back into one chunk and defeat dynamic-import splitting.
+          // No chunkSizeWarningLimit override — nothing here approaches the
+          // default 500 kB advisory. three/ is viewer-only and builds separately.
+          groups: [
+            { name: "vue", test: /@vue/, priority: 60 },
+            { name: "vendor", test: /node_modules/, priority: 10 },
+          ],
+        },
+      },
+    },
   },
   server: {
     port,
