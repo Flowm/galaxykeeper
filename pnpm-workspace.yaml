@@ -12,8 +12,8 @@ publicHoistPattern:
 
 catalog:
   typescript: ^6.0.3
-  oxlint: ^1.78.0
-  oxfmt: ^0.63.0
+  oxlint: ^1.82.0
+  oxfmt: ^0.67.0
 
 allowBuilds:
   esbuild: false
