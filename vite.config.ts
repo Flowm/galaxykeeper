@@ -21,6 +21,17 @@ const buildSha = (() => {
   }
 })();
 
+// `/proxy` (the data collector) is served by the Worker in worker/, which neither
+// `vite dev` nor `vite preview` runs. Proxy it to production by default so archiving
+// works without the worker; point at a local worker with
+// API_PROXY=http://localhost:8787 (`pnpm dev:worker`).
+const apiProxy = {
+  "/proxy": {
+    target: process.env.API_PROXY ?? "https://galaxykeeper.frcy.org",
+    changeOrigin: true,
+  },
+};
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -93,15 +104,12 @@ export default defineConfig({
   server: {
     port,
     strictPort: port !== undefined,
-    // In dev (`vite` on :5173) the Worker isn't bundled in, so forward the
-    // data-collection endpoint to a locally-running `wrangler dev` (:8787).
-    proxy: {
-      "/proxy": "http://localhost:8787",
-    },
+    proxy: apiProxy,
   },
   preview: {
     port,
     strictPort: port !== undefined,
+    proxy: apiProxy,
   },
   test: {
     // jsdom gives the archiving lib a real DOMParser in Node test runs.

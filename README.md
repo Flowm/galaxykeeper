@@ -60,9 +60,11 @@ mise trust && mise install   # toolchain (node, pnpm, prek) — see mise.toml
 mise setup                   # install the pre-commit hooks
 pnpm install                 # root SPA deps (covers the worker package too)
 
-# Two terminals (HMR + the proxy):
-pnpm dev:worker            # wrangler dev on :8787 (the /proxy data collector)
-pnpm dev                   # vite on :5173, proxies /proxy -> :8787
+pnpm dev                                   # vite on :5173, proxies /proxy to production
+
+# Or against a local worker, in two terminals:
+pnpm dev:worker                            # wrangler dev on :8787 (the /proxy data collector)
+API_PROXY=http://localhost:8787 pnpm dev   # proxies /proxy -> :8787
 ```
 
 Or run a single prod-like server (no HMR) — build first so the Worker has assets:

@@ -7,10 +7,10 @@
     "deploy": "wrangler deploy",
     "deploy:preview": "wrangler versions upload --preview-alias preview-$(git rev-parse --short=8 HEAD)",
     "dev": "wrangler dev --port 8787",
-    "lint": "oxlint && oxfmt --check && tsc --noEmit",
+    "lint": "pnpm generate-types && oxlint && oxfmt --check && tsc --noEmit",
     "lint:fix": "oxlint --fix && oxfmt --write",
     "generate-types": "wrangler types src/worker-configuration.d.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "pnpm generate-types && tsc --noEmit"
   },
   "devDependencies": {
     "oxfmt": "catalog:",

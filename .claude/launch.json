@@ -14,6 +14,13 @@
       "runtimeArgs": ["exec", "--", "pnpm", "run", "preview"],
       "port": 5190,
       "autoPort": true
+    },
+    {
+      "name": "worker",
+      "runtimeExecutable": "mise",
+      "runtimeArgs": ["exec", "--", "pnpm", "run", "dev:worker"],
+      "port": 8787,
+      "autoPort": false
     }
   ]
 }
