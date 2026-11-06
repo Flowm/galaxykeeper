@@ -70,7 +70,7 @@ API_PROXY=http://localhost:8787 pnpm dev   # proxies /proxy -> :8787
 Or run a single prod-like server (no HMR) — build first so the Worker has assets:
 
 ```sh
-pnpm build && pnpm --filter galaxy-keeper-worker dev   # serves dist/ + /proxy on :8787
+pnpm build && pnpm --filter galaxykeeper-worker dev   # serves dist/ + /proxy on :8787
 ```
 
 `pnpm lint` runs oxlint + oxfmt + `vue-tsc` (over both the SPA and the `viewer/`
