@@ -80,6 +80,8 @@ network access and the large, gitignored `reference/` fixture, so it **skips
 itself cleanly whenever `reference/` is absent** — which is the case in CI, where
 `pnpm test` therefore runs green without touching the network. To exercise it,
 drop the reference archive into `reference/` locally and run `pnpm test`.
+`pnpm test:worker` runs the Worker's tests in workerd, with every upstream fetch
+mocked, so they need no network either.
 
 ## Build & deploy
 

@@ -27,6 +27,7 @@ jobs:
           cache: pnpm
       - run: pnpm ci
       - run: pnpm test
+      - run: pnpm test:worker
   preview:
     needs: [lint, test]
     # PRs targeting main, excluding forks (which can't access the deploy secrets).

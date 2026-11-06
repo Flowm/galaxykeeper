@@ -9,13 +9,16 @@
     "dev": "wrangler dev --port 8787",
     "lint": "pnpm generate-types && oxlint && oxfmt --check && tsc --noEmit",
     "lint:fix": "oxlint --fix && oxfmt --write",
+    "test": "pnpm generate-types && vitest run",
     "generate-types": "wrangler types src/worker-configuration.d.ts --env-file /dev/null",
     "type-check": "pnpm generate-types && tsc --noEmit"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.5.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
+    "vitest": "^5.1.0",
     "wrangler": "^4.157.0"
   }
 }
