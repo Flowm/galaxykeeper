@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 

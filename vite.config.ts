@@ -112,8 +112,8 @@ export default defineConfig({
     proxy: apiProxy,
   },
   test: {
-    // jsdom gives the archiving lib a real DOMParser in Node test runs.
-    environment: "jsdom",
+    // Tests that need a DOM opt in per file with `// @vitest-environment jsdom`.
+    environment: "node",
     include: ["src/**/*.test.ts"],
     testTimeout: 180_000,
   },
