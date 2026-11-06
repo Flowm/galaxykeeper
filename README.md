@@ -60,15 +60,17 @@ mise trust && mise install   # toolchain (node, pnpm, prek) — see mise.toml
 mise setup                   # install the pre-commit hooks
 pnpm install                 # root SPA deps (covers the worker package too)
 
-# Two terminals (HMR + the proxy):
-pnpm dev:worker            # wrangler dev on :8787 (the /proxy data collector)
-pnpm dev                   # vite on :5173, proxies /proxy -> :8787
+pnpm dev                                   # vite on :5173, proxies /proxy to production
+
+# Or against a local worker, in two terminals:
+pnpm dev:worker                            # wrangler dev on :8787 (the /proxy data collector)
+API_PROXY=http://localhost:8787 pnpm dev   # proxies /proxy -> :8787
 ```
 
 Or run a single prod-like server (no HMR) — build first so the Worker has assets:
 
 ```sh
-pnpm build && pnpm --filter galaxy-keeper-worker dev   # serves dist/ + /proxy on :8787
+pnpm build && pnpm --filter galaxykeeper-worker dev   # serves dist/ + /proxy on :8787
 ```
 
 `pnpm lint` runs oxlint + oxfmt + `vue-tsc` (over both the SPA and the `viewer/`
@@ -78,6 +80,8 @@ network access and the large, gitignored `reference/` fixture, so it **skips
 itself cleanly whenever `reference/` is absent** — which is the case in CI, where
 `pnpm test` therefore runs green without touching the network. To exercise it,
 drop the reference archive into `reference/` locally and run `pnpm test`.
+`pnpm test:worker` runs the Worker's tests in workerd, with every upstream fetch
+mocked, so they need no network either.
 
 ## Build & deploy
 

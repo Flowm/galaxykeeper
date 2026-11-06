@@ -1,5 +1,5 @@
 {
-  "name": "galaxy-keeper-worker",
+  "name": "galaxykeeper-worker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,15 +7,18 @@
     "deploy": "wrangler deploy",
     "deploy:preview": "wrangler versions upload --preview-alias preview-$(git rev-parse --short=8 HEAD)",
     "dev": "wrangler dev --port 8787",
-    "lint": "oxlint && oxfmt --check && tsc --noEmit",
+    "lint": "pnpm generate-types && oxlint && oxfmt --check && tsc --noEmit",
     "lint:fix": "oxlint --fix && oxfmt --write",
-    "generate-types": "wrangler types src/worker-configuration.d.ts",
-    "type-check": "tsc --noEmit"
+    "test": "pnpm generate-types && vitest run",
+    "generate-types": "wrangler types src/worker-configuration.d.ts --env-file /dev/null",
+    "type-check": "pnpm generate-types && tsc --noEmit"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.5.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
+    "vitest": "^5.1.0",
     "wrangler": "^4.157.0"
   }
 }

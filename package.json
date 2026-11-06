@@ -1,5 +1,5 @@
 {
-  "name": "galaxy-keeper",
+  "name": "galaxykeeper",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,16 +13,17 @@
     "pretest": "pnpm run build:viewer",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:worker": "pnpm --filter galaxykeeper-worker test",
     "type-check": "vue-tsc --noEmit && vue-tsc --noEmit -p viewer/tsconfig.json",
     "lint": "pnpm lint:web && pnpm lint:worker",
     "lint:web": "oxlint --disable-nested-config && oxfmt --disable-nested-config --check && vue-tsc && vue-tsc -p viewer/tsconfig.json",
-    "lint:worker": "pnpm --filter galaxy-keeper-worker lint",
+    "lint:worker": "pnpm --filter galaxykeeper-worker lint",
     "lint:fix": "pnpm lint:fix:web && pnpm lint:fix:worker",
     "lint:fix:web": "oxlint --disable-nested-config --fix && oxfmt --disable-nested-config --write",
-    "lint:fix:worker": "pnpm --filter galaxy-keeper-worker lint:fix",
-    "dev:worker": "pnpm --filter galaxy-keeper-worker dev",
-    "deploy": "pnpm build && pnpm --filter galaxy-keeper-worker deploy",
-    "deploy:preview": "pnpm build && pnpm --filter galaxy-keeper-worker deploy:preview"
+    "lint:fix:worker": "pnpm --filter galaxykeeper-worker lint:fix",
+    "dev:worker": "pnpm --filter galaxykeeper-worker dev",
+    "deploy": "pnpm build && pnpm --filter galaxykeeper-worker deploy",
+    "deploy:preview": "pnpm build && pnpm --filter galaxykeeper-worker deploy:preview"
   },
   "dependencies": {
     "fflate": "^0.8.3",
